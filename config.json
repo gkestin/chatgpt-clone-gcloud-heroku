@@ -4,8 +4,6 @@
         "port" : 8000,
         "debug": false
     },
-    "openai_key": "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",
-
     "openai_api_base": "https://api.openai.com",
     "proxy": {
         "enable": false,

@@ -9,20 +9,19 @@ from json     import loads
 import os
 from json import JSONDecodeError
 
+from dotenv import load_dotenv # to load api key from .env
+load_dotenv() # to load api key from .env
+
 from server.config import special_instructions
 
 import logging
 
-# At the start of your file
-
 logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
-
-
 
 class Backend_Api:
     def __init__(self, app, config: dict) -> None:
         self.app = app
-        self.openai_key = os.getenv("OPENAI_API_KEY") or config['openai_key']
+        self.openai_key = os.getenv("OPENAI_API_KEY") or config['openai_api_key']  # Modified here
         self.openai_api_base = os.getenv("OPENAI_API_BASE") or config['openai_api_base']
         self.proxy = config['proxy']
         self.routes = {

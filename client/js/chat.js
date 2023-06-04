@@ -69,8 +69,6 @@ const handle_ask = async () => {
 
   if (message.length > 0) {
     message_input.value = ``;
-    // Append a newline character at the end of the message (to fix heroku)
-    message += '\n';
     await ask_gpt(message);
   }
 };

@@ -7,6 +7,8 @@ import os
 
 if __name__ == '__main__':
     config = load(open('config.json', 'r'))
+    openai_api_key = os.getenv('OPENAI_API_KEY')  # load OpenAI API key from environment variable
+    config['openai_api_key'] = openai_api_key
     site_config = config['site_config']
 
     # Update the site_config port if PORT environment variable is set
