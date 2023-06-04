@@ -166,7 +166,16 @@ const ask_gpt = async (message) => {
       }),
     });
 
-    const reader = response.body.getReader();
+//////////////////to debug heroku deploy///////
+const clonedResponse = response.clone();
+
+// Log the response data
+clonedResponse.text().then((data) => {
+  console.log('Response data:', data);
+});
+
+const reader = response.body.getReader();
+///////////////////////////////////////////////
 
     while (true) {
       const { value, done } = await reader.read();
