@@ -70,6 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
             loginButton.style.display = 'none';
             messageField.innerHTML = 'Signed up and logged in successfully';
             window.userEmail = email; // Setting the global variable for user email.
+            window.localStorage.setItem('userEmail', email); //Use local storage to bring email to index.html
             window.location.href = "/assets/html/index.html"; //When trying to do login.html
           })
           .catch((error) => {
