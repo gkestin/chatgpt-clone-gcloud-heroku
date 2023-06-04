@@ -12,19 +12,6 @@ const stop_generating = document.querySelector(`.stop_generating`);
 const send_button = document.querySelector(`#send-button`);
 let prompt_lock = false;
 
-// Fetch user email from the HTML input field.(NOT GLOBAL BELOW LINE)
-//const userEmail = document.getElementById('email').value;
-
-// Fetch user email from the global variable.
-//const userEmail = window.userEmail;
-
-// FETCH USER EMAIL FROM LOCAL STORAGE (since aboe 2 didn't work)
-const userEmail = window.localStorage.getItem('userEmail');
-
-
-// Use Firestore instance from your Firebase (but GREG removed b/c declared in index.html)
-//const db = firebase.firestore();
-
 hljs.addPlugin(new CopyButtonPlugin());
 
 function resizeTextarea(textarea) {
@@ -44,20 +31,9 @@ message_input.addEventListener("focus", () => {
   document.documentElement.scrollTop = document.documentElement.scrollHeight;
 });
 
-//am I setting user email correctly?
-console.log(userEmail);
-
 const delete_conversations = async () => {
-  // Use Firestore's batch write to delete all conversation documents
-  const batch = db.batch();
-  const userConversationsRef = db.collection(userEmail);
-  const snapshot = await userConversationsRef.get();
-  snapshot.docs.forEach((doc) => {
-    batch.delete(doc.ref);
-  });
-  await batch.commit();
-
-  // Start a new conversation
+  localStorage.clear();
+  await new_conversation();
 };
 
 const handle_ask = async () => {
@@ -81,8 +57,6 @@ const remove_cancel_button = async () => {
     stop_generating.classList.add(`stop_generating-hidden`);
   }, 300);
 };
-
-
 
 const ask_gpt = async (message) => {
   try {
@@ -108,7 +82,7 @@ const ask_gpt = async (message) => {
                     ${user_image}
                     <i class="fa-regular fa-phone-arrow-up-right"></i>
                 </div>
-                <div class="content" id="user_${token}">
+                <div class="content" id="user_${token}"> 
                     ${format(message)}
                 </div>
             </div>
@@ -184,6 +158,15 @@ const ask_gpt = async (message) => {
 
       text += chunk;
 
+      // const objects         = chunk.match(/({.+?})/g);
+
+      // try { if (JSON.parse(objects[0]).success === false) throw new Error(JSON.parse(objects[0]).error) } catch (e) {}
+
+      // objects.forEach((object) => {
+      //     console.log(object)
+      //     try { text += h2a(JSON.parse(object).content) } catch(t) { console.log(t); throw new Error(t)}
+      // });
+
       document.getElementById(`gpt_${window.token}`).innerHTML =
         markdown.render(text);
       document.querySelectorAll(`code`).forEach((el) => {
@@ -194,6 +177,7 @@ const ask_gpt = async (message) => {
       message_box.scrollTo({ top: message_box.scrollHeight, behavior: "auto" });
     }
 
+    // if text contains :
     if (
       text.includes(
         `instead. Maintaining this website and API costs a lot of money`
@@ -203,7 +187,6 @@ const ask_gpt = async (message) => {
         "An error occured, please reload / refresh cache and try again.";
     }
 
-    // Here's where the messages are stored
     add_message(window.conversation_id, "user", message);
     add_message(window.conversation_id, "assistant", text);
 
@@ -211,7 +194,6 @@ const ask_gpt = async (message) => {
     await remove_cancel_button();
     prompt_lock = false;
 
-    // Loading the conversations
     await load_conversations(20, 0);
     window.scrollTo(0, 0);
   } catch (e) {
@@ -221,7 +203,6 @@ const ask_gpt = async (message) => {
     await remove_cancel_button();
     prompt_lock = false;
 
-    // Loading the conversations
     await load_conversations(20, 0);
 
     console.log(e);
@@ -242,8 +223,6 @@ const ask_gpt = async (message) => {
     window.scrollTo(0, 0);
   }
 };
-
-
 
 const clear_conversations = async () => {
   const elements = box_conversations.childNodes;
@@ -277,8 +256,8 @@ const show_option = async (conversation_id) => {
 
   conv.style.display = "none";
   yes.style.display = "block";
-  not.style.display = "block";
-};
+  not.style.display = "block"; 
+}
 
 const hide_option = async (conversation_id) => {
   const conv = document.getElementById(`conv-${conversation_id}`);
@@ -287,16 +266,14 @@ const hide_option = async (conversation_id) => {
 
   conv.style.display = "block";
   yes.style.display = "none";
-  not.style.display = "none";
-};
+  not.style.display = "none"; 
+}
 
-// Deletes a conversation from Firestore
 const delete_conversation = async (conversation_id) => {
-  await db.collection(userEmail).doc(conversation_id).delete();
-  // Code for manipulating the UI
+  localStorage.removeItem(`conversation:${conversation_id}`);
 
   const conversation = document.getElementById(`convo-${conversation_id}`);
-  conversation.remove();
+    conversation.remove();
 
   if (window.conversation_id == conversation_id) {
     await new_conversation();
@@ -305,36 +282,30 @@ const delete_conversation = async (conversation_id) => {
   await load_conversations(20, 0, true);
 };
 
-// Sets the active conversation
 const set_conversation = async (conversation_id) => {
-  // Code for updating URL and UI
   history.pushState({}, null, `/chat/${conversation_id}`);
   window.conversation_id = conversation_id;
 
-  // Code for loading the conversation and its messages
   await clear_conversation();
   await load_conversation(conversation_id);
   await load_conversations(20, 0, true);
 };
 
-// Creates a new conversation
 const new_conversation = async () => {
-  // Code for updating URL and generating new conversation ID
   history.pushState({}, null, `/chat/`);
   window.conversation_id = uuid();
 
-  // Code for loading conversations
   await clear_conversation();
   await load_conversations(20, 0, true);
 };
 
-// Loads a conversation from Firestore
 const load_conversation = async (conversation_id) => {
-  const conversation = await db.collection(userEmail).doc(conversation_id).get();
-  const conversationData = conversation.data();
-  // Code for rendering messages and handling UI behavior
+  let conversation = await JSON.parse(
+    localStorage.getItem(`conversation:${conversation_id}`)
+  );
+  console.log(conversation, conversation_id);
 
-  for (item of conversationData.items) {
+  for (item of conversation.items) {
     message_box.innerHTML += `
             <div class="message">
                 <div class="user">
@@ -367,46 +338,53 @@ const load_conversation = async (conversation_id) => {
   }, 500);
 };
 
-// Fetches a conversation's messages
 const get_conversation = async (conversation_id) => {
-  const conversation = await db.collection(userEmail).doc(conversation_id).get();
-  return conversation.data().items;
+  let conversation = await JSON.parse(
+    localStorage.getItem(`conversation:${conversation_id}`)
+  );
+  return conversation.items;
 };
 
-// Adds a new conversation to Firestore
 const add_conversation = async (conversation_id, title) => {
-  const conversationRef = db.collection(userEmail).doc(conversation_id);
-  const conversation = await conversationRef.get();
-
-  if (!conversation.exists) {
-    await conversationRef.set({
-      id: conversation_id,
-      title: title,
-      items: [],
-    });
+  if (localStorage.getItem(`conversation:${conversation_id}`) == null) {
+    localStorage.setItem(
+      `conversation:${conversation_id}`,
+      JSON.stringify({
+        id: conversation_id,
+        title: title,
+        items: [],
+      })
+    );
   }
 };
 
-
-
-
 const add_message = async (conversation_id, role, content) => {
-  const conversationRef = db.collection(userEmail).doc(conversation_id);
-  const conversation = await conversationRef.get();
-  const conversationData = conversation.data();
-  conversationData.items.push({
+  before_adding = JSON.parse(
+    localStorage.getItem(`conversation:${conversation_id}`)
+  );
+
+  before_adding.items.push({
     role: role,
     content: content,
   });
-  await conversationRef.update(conversationData); // update conversation
+
+  localStorage.setItem(
+    `conversation:${conversation_id}`,
+    JSON.stringify(before_adding)
+  ); // update conversation
 };
 
 const load_conversations = async (limit, offset, loader) => {
-  const conversations = [];
-  const snapshot = await db.collection(userEmail).get();
-  snapshot.docs.forEach((doc) => {
-    conversations.push(doc.data());
-  });
+  //console.log(loader);
+  //if (loader === undefined) box_conversations.appendChild(spinner);
+
+  let conversations = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    if (localStorage.key(i).startsWith("conversation:")) {
+      let conversation = localStorage.getItem(localStorage.key(i));
+      conversations.push(JSON.parse(conversation));
+    }
+  }
 
   //if (loader === undefined) spinner.parentNode.removeChild(spinner)
   await clear_conversations();
@@ -466,18 +444,17 @@ const message_id = () => {
   return BigInt(`0b${unix}${random_bytes}`).toString();
 };
 
-
-
 window.onload = async () => {
-  load_settings_firestore();
+  load_settings_localstorage();
 
   conversations = 0;
-  const snapshot = await db.collection(userEmail).get();
-  conversations = snapshot.size;
-
-  if (conversations == 0) {
-    await db.collection(userEmail).doc().delete();
+  for (let i = 0; i < localStorage.length; i++) {
+    if (localStorage.key(i).startsWith("conversation:")) {
+      conversations += 1;
+    }
   }
+
+  if (conversations == 0) localStorage.clear();
 
   await setTimeout(() => {
     load_conversations(20, 0);
@@ -489,12 +466,12 @@ window.onload = async () => {
     }
   }
 
-  message_input.addEventListener(`keydown`, async (evt) => {
+message_input.addEventListener(`keydown`, async (evt) => {
     if (prompt_lock) return;
     if (evt.keyCode === 13 && !evt.shiftKey) {
-      evt.preventDefault();
-      console.log('pressed enter');
-      await handle_ask();
+        evt.preventDefault();
+        console.log('pressed enter');
+        await handle_ask();
     } else {
       message_input.style.removeProperty("height");
       message_input.style.height = message_input.scrollHeight + 4 + "px";
@@ -507,7 +484,7 @@ window.onload = async () => {
     await handle_ask();
   });
 
-  register_settings_firestore();
+  register_settings_localstorage();
 };
 
 document.querySelector(".mobile-sidebar").addEventListener("click", (event) => {
@@ -524,40 +501,36 @@ document.querySelector(".mobile-sidebar").addEventListener("click", (event) => {
   window.scrollTo(0, 0);
 });
 
-const register_settings_firestore = async () => {
+const register_settings_localstorage = async () => {
   settings_ids = ["switch", "model", "jailbreak"];
   settings_elements = settings_ids.map((id) => document.getElementById(id));
   settings_elements.map((element) =>
     element.addEventListener(`change`, async (event) => {
-      const setting = {};
       switch (event.target.type) {
         case "checkbox":
-          setting[event.target.id] = event.target.checked;
+          localStorage.setItem(event.target.id, event.target.checked);
           break;
         case "select-one":
-          setting[event.target.id] = event.target.selectedIndex;
+          localStorage.setItem(event.target.id, event.target.selectedIndex);
           break;
         default:
           console.warn("Unresolved element type");
       }
-      await db.collection(userEmail).doc("settings").set(setting, { merge: true });
     })
   );
 };
 
-const load_settings_firestore = async () => {
+const load_settings_localstorage = async () => {
   settings_ids = ["switch", "model", "jailbreak"];
   settings_elements = settings_ids.map((id) => document.getElementById(id));
-  const doc = await db.collection(userEmail).doc("settings").get();
-  const settings = doc.data();
   settings_elements.map((element) => {
-    if (settings && settings[element.id] !== undefined) {
+    if (localStorage.getItem(element.id)) {
       switch (element.type) {
         case "checkbox":
-          element.checked = settings[element.id];
+          element.checked = localStorage.getItem(element.id) === "true";
           break;
         case "select-one":
-          element.selectedIndex = settings[element.id];
+          element.selectedIndex = parseInt(localStorage.getItem(element.id));
           break;
         default:
           console.warn("Unresolved element type");
@@ -567,15 +540,13 @@ const load_settings_firestore = async () => {
 };
 
 // Theme storage for recurring viewers
-const storeTheme = async function (theme) {
-  await db.collection(userEmail).doc("theme").set({ theme: theme });
+const storeTheme = function (theme) {
+  localStorage.setItem("theme", theme);
 };
 
 // set theme when visitor returns
-const setTheme = async function () {
-  const doc = await db.collection(userEmail).doc("theme").get();
-  const data = doc.data();
-  const activeTheme = data ? data.theme : '';
+const setTheme = function () {
+  const activeTheme = localStorage.getItem("theme");
   colorThemes.forEach((themeOption) => {
     if (themeOption.id === activeTheme) {
       themeOption.checked = true;
@@ -594,6 +565,3 @@ colorThemes.forEach((themeOption) => {
 });
 
 document.onload = setTheme();
-
-
-

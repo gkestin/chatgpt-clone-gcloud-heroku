@@ -477,12 +477,25 @@ select {
     border: 1px solid #c7a2ff;
     border-radius: var(--border-radius-1);
     width: 100%;
+    text-align: center;
 }
 
 .bottom_buttons button span {
     color: var(--colour-3);
     font-size: 14px;
 }
+
+/*Added by greg below*/
+.bottom_buttons button:hover {
+    background-color: var(--blur-border);
+    transition: background-color 0.3s ease-in-out;
+}
+
+.bottom_buttons button:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease-in-out;
+}
+/*Added by greg above*/
 
 .conversations .top {
     display: flex;
@@ -785,6 +798,42 @@ a:-webkit-any-link {
     --colour-3: hsl(209 50% 90%);
     --conversations: hsl(209 50% 80%);
 }
+
+/*from GREG below*/
+  .custom-input {
+    background-color: black;
+    color: lightgrey;
+    border: 1px solid grey;
+    padding: 5px;
+    outline: none;
+    border-radius: 5px; /* Add this line to give the input fields rounded edges */
+  }
+
+  .custom-input:-webkit-autofill,
+  .custom-input:-webkit-autofill:hover,
+  .custom-input:-webkit-autofill:focus,
+  .custom-input:-webkit-autofill:active {
+    background-color: black !important;
+    color: white !important;
+  }
+
+  /* Set the color of the input text to the desired color when entering text (white) */
+  .custom-input:focus {
+    color: white;
+    background-color: black;
+  }
+
+  /* Override autofill box-shadow and transition to prevent color change */
+  .custom-input:-webkit-autofill::first-line  {
+    background-color: black !important;
+    color: white !important;
+  }
+
+  .custom-input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px black inset;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+  /*from GREG above*/
 
 :root:has(#pink:checked) {
     --colour-1: hsl(310 50% 90%);

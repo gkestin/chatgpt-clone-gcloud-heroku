@@ -15,6 +15,7 @@
         <link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16x16.png">
         <link rel="manifest" href="/assets/img/site.webmanifest">
         <script src="/assets/js/icons.js"></script>
+        <!-- Greg change: now dynamically loaded only after login-->
         <script src="/assets/js/chat.js" defer></script>
         <script src="https://cdn.jsdelivr.net/npm/markdown-it@latest/dist/markdown-it.min.js"></script>
         <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@latest/build/styles/base16/dracula.min.css">
@@ -57,13 +58,51 @@
         </style>
         <script src="/assets/js/highlight.min.js"></script>
         <script src="/assets/js/highlightjs-copy.min.js"></script>
-        <script>window.conversation_id = `{{chat_id}}`</script>
+     <script>window.conversation_id = `{{chat_id}}`</script>
         <title>ChatGPT</title>
+
+        <!-- Greg added Firebase App (the core Firebase SDK) is always required and must be listed first -->
+        <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+
+        <!-- Greg added the Firebase products that you want to use -->
+        <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-auth.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-firestore.js"></script>
+        <!--Added by greg for firebase authentication-->
+        <script>
+        var firebaseConfig = {
+        apiKey: "AIzaSyADmYznLr9rXVUejVY__g8bKeh6m-56BXM",
+        authDomain: "teachgptclone.firebaseapp.com",
+        projectId: "teachgptclone",
+        storageBucket: "teachgptclone.appspot.com",
+        messagingSenderId: "1025912222249",
+        appId: "1:1025912222249:web:8140b933f6641be2b36238",
+        measurementId: "G-B4QSL3SHP3"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        var db = firebase.firestore();
+        </script>
+        <!--Above Added by greg for firebase authentication-->
+        <!--Below Added by greg authentication functionality (sign in code at html bottom)-->
+        <script src="/assets/js/auth.js"></script>
     </head>
     <body>
         <div class="gradient"></div>
         <div class="row">
             <div class="box conversations">
+                    <!-- New GREG Firebase Authentication block starts here -->
+                    <div id="firebase-auth" style="margin-top: 20px;">
+                        <input class="custom-input" id="email" type="email" placeholder="Email" style="display: none;">
+                        <br>
+                        <input class="custom-input" id="password" type="password" placeholder="Password" style="display: none;">
+                        <br>
+                        <div class="bottom_buttons">
+                            <button  id="login" style="display: none;"><span>Log In / Sign Up</span></button>
+                            <button id="logout"><span>Log Out</span></button>
+                        </div>
+                        <h6 id="message"></h6>
+                    </div>
+                    <!--New GREG Firebase Authentication block ends here -->
                 <div class="top">
                     <button class="new_convo" onclick="new_conversation()">
                         <i class="fa-regular fa-plus"></i>
@@ -76,6 +115,7 @@
                         <i class="fa-regular fa-trash"></i>
                         <span>Clear Conversations</span>
                     </button>
+                    <!--
                     <div class="info">
                         <i class="fa-regular fa-circle-info"></i>
                         <span class="convo-title">By: @xtekky<br>
@@ -83,6 +123,7 @@
                             Release: 2023-04-18<br>
                         </span>
                     </div>
+                    -->
                 </div>
             </div>
             <div class="conversation disable-scrollbars">
@@ -96,7 +137,8 @@
                 </div>
                 <div class="user-input">
                     <div class="box input-box">
-                        <textarea id="message-input" placeholder="Ask a question" cols="30" rows="10" style="white-space: pre-wrap;" oninput="resizeTextarea(this)"></textarea>
+                        <!--<textarea id="message-input" placeholder="Ask a question" cols="30" rows="10" style="white-space: pre-wrap;" oninput="resizeTextarea(this)"></textarea>-->
+                        <textarea id="message-input" placeholder="Ask a question" cols="30" rows="10" style="white-space: pre-wrap;" ></textarea>
                         <div id="send-button">
                             <i class="fa-regular fa-paper-plane-top"></i>
                         </div>
@@ -154,5 +196,19 @@
         <div class="mobile-sidebar">
             <i class="fa-solid fa-bars"></i>
         </div>
+
+        <!-- Add these lines to your index.html-->
+    <script>
+      firebase.auth().onAuthStateChanged(function (user) {
+        if (user) {
+          document.getElementById('message').innerHTML = 'Logged in as ' + user.email;
+          //enableChat();
+          document.getElementById('logout').style.display = 'block';
+        } else {
+          window.location.href = "/assets/html/login.html";
+        }
+      });
+    </script>
+
     </body>
 </html>

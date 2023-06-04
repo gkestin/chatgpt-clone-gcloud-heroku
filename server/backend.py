@@ -7,8 +7,16 @@ from requests import get
 from requests import post 
 from json     import loads
 import os
+from json import JSONDecodeError
 
 from server.config import special_instructions
+
+import logging
+
+# At the start of your file
+
+logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
+
 
 
 class Backend_Api:
@@ -25,6 +33,7 @@ class Backend_Api:
         }
 
     def _conversation(self):
+        print(request.json)  # Add this line to print the incoming POST data
         try:
             jailbreak = request.json['jailbreak']
             internet_access = request.json['meta']['content']['internet_access']
@@ -80,26 +89,37 @@ class Backend_Api:
 
             def stream():
                 for chunk in gpt_resp.iter_lines():
+                    #print(chunk)  # Add this line to print out the raw chunk data
+                    if not chunk or not chunk.startswith(b'data: {'):
+                        continue  # Skip the iteration if chunk is empty or not valid JSON
                     try:
-                        decoded_line = loads(chunk.decode("utf-8").split("data: ")[1])
-                        token = decoded_line["choices"][0]['delta'].get('content')
+                        if chunk and chunk.startswith(b"data: "):
+                            decoded_line = chunk.decode("utf-8").split("data: ", 1)
 
-                        if token != None: 
-                            yield token
-                            
+                            if len(decoded_line) > 1 and decoded_line[1].strip():
+                                try:
+                                    decoded_line = loads(decoded_line[1])
+
+                                    if 'choices' in decoded_line and isinstance(decoded_line['choices'], list) and \
+                                            decoded_line['choices']:
+                                        token = decoded_line["choices"][0]['delta'].get('content')
+
+                                        if token is not None:
+                                            yield token
+                                except JSONDecodeError as je:
+                                    print("Error decoding JSON:", je)
+                                    continue
                     except GeneratorExit:
                         break
 
                     except Exception as e:
-                        print(e)
-                        print(e.__traceback__.tb_next)
+                        print("Error in stream:", e)
                         continue
-                        
+
             return self.app.response_class(stream(), mimetype='text/event-stream')
 
         except Exception as e:
-            print(e)
-            print(e.__traceback__.tb_next)
+            print("Error in _conversation:", e)
             return {
                 '_action': '_ask',
                 'success': False,

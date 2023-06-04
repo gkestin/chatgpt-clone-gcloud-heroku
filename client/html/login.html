@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0 maximum-scale=1.0">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            background: #1a1a1a;
+            color: #f2f2f2;
+        }
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: #2b2b2b;
+            border-radius: 10px;
+        }
+    </style>
+    <title>Login - ChatGPT</title>
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-firestore.js"></script>
+    <script>
+      var firebaseConfig = {
+        apiKey: "AIzaSyADmYznLr9rXVUejVY__g8bKeh6m-56BXM",
+        authDomain: "teachgptclone.firebaseapp.com",
+        projectId: "teachgptclone",
+        storageBucket: "teachgptclone.appspot.com",
+        messagingSenderId: "1025912222249",
+        appId: "1:1025912222249:web:8140b933f6641be2b36238",
+        measurementId: "G-B4QSL3SHP3"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      var db = firebase.firestore();
+      // Global variable for user email
+      window.userEmail = null;
+    </script>
+    <script src="/assets/js/auth.js"></script>
+  </head>
+  <body>
+    <div class="gradient"></div>
+    <div class="form-container">
+      <h1>Login / Sign Up</h1>
+      <input class="custom-input" id="email" type="email" placeholder="Email">
+      <input class="custom-input" id="password" type="password" placeholder="Password">
+      <div class="bottom_buttons">
+        <button id="login"><span>Log In / Sign Up</span></button>
+        <button id="logout" style="display: none;"><span>Log Out</span></button>
+      </div>
+    </div>
+    <h5 id="message"></h5>
+  </body>
+</html>
