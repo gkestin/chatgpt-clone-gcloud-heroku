@@ -34,7 +34,7 @@
 
             #message-input {
                 margin-right: 30px;
-                height: 80px;
+                /*height: 80px;*/
             }
 
             #message-input::-webkit-scrollbar {
@@ -56,29 +56,6 @@
                 background: #8b3dff; 
             }
 
-            /* Handle scroll if conversation list gets too long */
-            .conversations {
-            height: 100vh; /* Set height to full viewport */
-            overflow-y: auto; /* Add vertical scrollbar */
-            scrollbar-width: thin; /* Make scrollbar thinner */
-            scrollbar-color: #c7a2ff #f1f1f1; /* Color the scrollbar */
-            }
-
-            .conversations::-webkit-scrollbar {
-                width: 5px; /* For Webkit browsers, define the width */
-            }
-
-            .conversations::-webkit-scrollbar-track {
-                background: #f1f1f1; /* Color the track (background) */
-            }
-
-            .conversations::-webkit-scrollbar-thumb {
-                background: #c7a2ff; /* Color the handle (thumb) */
-            }
-
-            .conversations::-webkit-scrollbar-thumb:hover {
-                background: #8b3dff; /* Color the handle on hover */
-            }
         </style>
         <script src="/assets/js/highlight.min.js"></script>
         <script src="/assets/js/highlightjs-copy.min.js"></script>
@@ -121,36 +98,23 @@
                     </button>
                     <div class="spinner"></div>
                 </div>
-                <div class="bottom_buttons">
-                    <button onclick="delete_conversations()">
-                        <i class="fa-regular fa-trash"></i>
-                        <span>Clear Conversations</span>
-                    </button>
-                    <!--
-                    <div class="info">
-                        <i class="fa-regular fa-circle-info"></i>
-                        <span class="convo-title">By: @xtekky<br>
-                            Version: 0.0.1-beta<br>
-                            Release: 2023-04-18<br>
-                        </span>
-                    </div>
-                    -->
-                </div>
-
+            <!-- New GREG Firebase Authentication block (only logout button appears) starts here -->
                 <div id="firebase-auth" style="margin-top: 20px;">
-                        <div class="bottom_buttons">
-                            <button  id="login" style="display: none;"><span>Log In / Sign Up</span></button>
-                            <button id="logout"><span>Log Out</span></button>
-                        </div>
-                        <br>
-                        <h6 id="message"></h6>
-                        <input class="custom-input" id="email" type="email" placeholder="Email" style="display: none;">
-                        <input class="custom-input" id="password" type="password" placeholder="Password" style="display: none;">
+                    <div class="bottom_buttons">
+                        <button onclick="delete_conversations()">
+                            <i class="fa-regular fa-trash"></i>
+                            <span>Clear Conversations</span>
+                        </button>
+                        <button  id="login" style="display: none;"><span>Log In / Sign Up</span></button>
+                        <button id="logout"><span>Log Out</span></button>
+                    </div>
+                    <br>
+                    <h6 id="message"></h6>
+                    <input class="custom-input" id="email" type="email" placeholder="Email" style="display: none;">
+                    <input class="custom-input" id="password" type="password" placeholder="Password" style="display: none;">
                 </div>
             <!--New GREG Firebase Authentication block ends here -->
             </div>
-            <!-- New GREG Firebase Authentication block starts here -->
-
 
             <div class="conversation disable-scrollbars">
                 <div class="stop_generating stop_generating-hidden">

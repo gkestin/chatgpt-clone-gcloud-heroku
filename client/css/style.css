@@ -67,7 +67,6 @@ body {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     background-color: var(--blur-bg);
-    height: 100%;
     width: 100%;
     border-radius: var(--border-radius-1);
     border: 1px solid var(--blur-border);
@@ -444,6 +443,8 @@ select {
     align-items: center;
     padding-right: 15px;
     cursor: pointer;
+    height: 100px;   /* adjust to your needs */
+    overflow: hidden;
 }
 
 .info {
@@ -645,16 +646,14 @@ a:-webkit-any-link {
 .conversation .user-input textarea {
     font-size: 15px;
     width: 100%;
-    height: 100%;
     padding: 12px 15px;
     background: none;
     border: none;
     outline: none;
     color: var(--colour-3);
-
-    resize: vertical;
-    max-height: 150px;
-    min-height: 80px;
+    resize: none;  /* disable resizing */
+    max-height: 100%;  /* allow it to fill up to 100% of its container */
+    overflow: auto;  /* scroll bar will appear if the content exceeds the max height */
 }
 
 /* style for hljs copy */
@@ -861,4 +860,40 @@ a:-webkit-any-link {
     --clr-card-bg: hsl(209 50% 5%);
     --colour-3: hsl(209 50% 90%);
     --conversations: hsl(209 50% 80%);
+}
+
+/*next 3 added by greg so page doesn't slightly shift up and down*/
+
+body {
+    height: 100vh;
+    /*overflow: auto;*/ /*stopping entire page scrolling b/c hopefully doesn't need to*/
+}
+
+.row {
+    height: 100%;
+}
+
+.conversation {
+    height: calc(100% - 120px); /* Adjust this value if needed */
+    overflow: auto;
+}
+
+/*next 4 added by greg so messages+input message+buttons expand to full vertical height*/
+.conversation {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.conversation #messages {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.conversation .user-input {
+    flex-shrink: 0;
+}
+
+.conversation .buttons {
+    flex-shrink: 0;
 }
