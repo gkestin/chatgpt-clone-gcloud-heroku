@@ -166,16 +166,8 @@ const ask_gpt = async (message) => {
       }),
     });
 
-//////////////////to debug heroku deploy///////
-const clonedResponse = response.clone();
-
-// Log the response data
-clonedResponse.text().then((data) => {
-  console.log('Response data:', data);
-});
-
-const reader = response.body.getReader();
-///////////////////////////////////////////////
+    // chatGPT suggests: add this line to create a reader from the response body
+    const reader = response.body.getReader();
 
     while (true) {
       const { value, done } = await reader.read();
@@ -213,8 +205,11 @@ const reader = response.body.getReader();
     }
 
     // Here's where the messages are stored
-    add_message(window.conversation_id, "user", message);
-    add_message(window.conversation_id, "assistant", text);
+    console.log(`Adding user message: ${message}`);//DEBUG
+    await add_message(window.conversation_id, "user", message);
+
+    console.log(`Adding assistant message: ${text}`);//DEBUG
+    await add_message(window.conversation_id, "assistant", text);
 
     message_box.scrollTop = message_box.scrollHeight;
     await remove_cancel_button();
@@ -224,7 +219,8 @@ const reader = response.body.getReader();
     await load_conversations(20, 0);
     window.scrollTo(0, 0);
   } catch (e) {
-    add_message(window.conversation_id, "user", message);
+    console.log(`Adding user message in catch block: ${message}`);//DEBUG
+    await add_message(window.conversation_id, "user", message);
 
     message_box.scrollTop = message_box.scrollHeight;
     await remove_cancel_button();
@@ -242,10 +238,10 @@ const reader = response.body.getReader();
       let error_message = `oops ! something went wrong, please try again / reload. [stacktrace in console]`;
 
       document.getElementById(`gpt_${window.token}`).innerHTML = error_message;
-      add_message(window.conversation_id, "assistant", error_message);
+      await add_message(window.conversation_id, "assistant", error_message);
     } else {
       document.getElementById(`gpt_${window.token}`).innerHTML += ` [aborted]`;
-      add_message(window.conversation_id, "assistant", text + ` [aborted]`);
+      await add_message(window.conversation_id, "assistant", text + ` [aborted]`);
     }
 
     window.scrollTo(0, 0);
@@ -400,15 +396,24 @@ const add_conversation = async (conversation_id, title) => {
 
 
 const add_message = async (conversation_id, role, content) => {
-  const conversationRef = db.collection(userEmail).doc(conversation_id);
-  const conversation = await conversationRef.get();
-  const conversationData = conversation.data();
-  conversationData.items.push({
-    role: role,
-    content: content,
+  return new Promise(async (resolve, reject) => {
+    try {
+      const conversationRef = db.collection(userEmail).doc(conversation_id);
+      const conversation = await conversationRef.get();
+      const conversationData = conversation.data();
+      conversationData.items.push({
+        role: role,
+        content: content,
+      });
+      await conversationRef.update(conversationData); // update conversation
+      console.log(`Message added: ${role}: ${content}`); //DEBUG
+      resolve(); // Successfully finished
+    } catch(error) {
+      reject(error); // Something went wrong
+    }
   });
-  await conversationRef.update(conversationData); // update conversation
 };
+
 
 const load_conversations = async (limit, offset, loader) => {
   const conversations = [];

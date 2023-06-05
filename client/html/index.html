@@ -55,6 +55,30 @@
             #message-input::-webkit-scrollbar-thumb:hover {
                 background: #8b3dff; 
             }
+
+            /* Handle scroll if conversation list gets too long */
+            .conversations {
+            height: 100vh; /* Set height to full viewport */
+            overflow-y: auto; /* Add vertical scrollbar */
+            scrollbar-width: thin; /* Make scrollbar thinner */
+            scrollbar-color: #c7a2ff #f1f1f1; /* Color the scrollbar */
+            }
+
+            .conversations::-webkit-scrollbar {
+                width: 5px; /* For Webkit browsers, define the width */
+            }
+
+            .conversations::-webkit-scrollbar-track {
+                background: #f1f1f1; /* Color the track (background) */
+            }
+
+            .conversations::-webkit-scrollbar-thumb {
+                background: #c7a2ff; /* Color the handle (thumb) */
+            }
+
+            .conversations::-webkit-scrollbar-thumb:hover {
+                background: #8b3dff; /* Color the handle on hover */
+            }
         </style>
         <script src="/assets/js/highlight.min.js"></script>
         <script src="/assets/js/highlightjs-copy.min.js"></script>
@@ -90,19 +114,6 @@
         <div class="gradient"></div>
         <div class="row">
             <div class="box conversations">
-                    <!-- New GREG Firebase Authentication block starts here -->
-                    <div id="firebase-auth" style="margin-top: 20px;">
-                        <input class="custom-input" id="email" type="email" placeholder="Email" style="display: none;">
-                        <br>
-                        <input class="custom-input" id="password" type="password" placeholder="Password" style="display: none;">
-                        <br>
-                        <div class="bottom_buttons">
-                            <button  id="login" style="display: none;"><span>Log In / Sign Up</span></button>
-                            <button id="logout"><span>Log Out</span></button>
-                        </div>
-                        <h6 id="message"></h6>
-                    </div>
-                    <!--New GREG Firebase Authentication block ends here -->
                 <div class="top">
                     <button class="new_convo" onclick="new_conversation()">
                         <i class="fa-regular fa-plus"></i>
@@ -125,7 +136,22 @@
                     </div>
                     -->
                 </div>
+
+                <div id="firebase-auth" style="margin-top: 20px;">
+                        <div class="bottom_buttons">
+                            <button  id="login" style="display: none;"><span>Log In / Sign Up</span></button>
+                            <button id="logout"><span>Log Out</span></button>
+                        </div>
+                        <br>
+                        <h6 id="message"></h6>
+                        <input class="custom-input" id="email" type="email" placeholder="Email" style="display: none;">
+                        <input class="custom-input" id="password" type="password" placeholder="Password" style="display: none;">
+                </div>
+            <!--New GREG Firebase Authentication block ends here -->
             </div>
+            <!-- New GREG Firebase Authentication block starts here -->
+
+
             <div class="conversation disable-scrollbars">
                 <div class="stop_generating stop_generating-hidden">
                     <button id="cancelButton">
